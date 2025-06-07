@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Expense Tracker Dashboard</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <h2 class="app-title">Expense Tracker</h2>
+    <nav class="nav-links">
+      <a href="index.html" class="active">Dashboard</a>
+      <a href="expenses.html">Expenses</a>
+      <a href="budgets.html">Budgets</a>
+      <a href="categories.html">Categories</a>
+    </nav>
+  </aside>
+  
+  <!-- Main Content -->
+  <main class="main-content">
+    <h1 class="page-title">Dashboard</h1>
+
+    <!-- Summary Cards -->
+    <div class="cards">
+      <div class="card">
+        <h3>Total Spent</h3>
+        <p class="amount red">₹25,000</p>
+      </div>
+      <div class="card">
+        <h3>Total Budget</h3>
+        <p class="amount green">₹40,000</p>
+      </div>
+      <div class="card">
+        <h3>Remaining</h3>
+        <p class="amount blue">₹15,000</p>
+      </div>
+    </div>
+
+    <!-- Chart Placeholder -->
+    <div class="chart-card">
+      <h3>Spending Breakdown</h3>
+      <div class="chart-placeholder">[ Chart.js Graph Placeholder ]</div>
+    </div>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
