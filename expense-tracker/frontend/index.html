@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expense Tracker</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <aside class="sidebar">
+            <h2>Expense Tracker</h2>
+            <nav>
+                <ul>
+                    <li><a href="index.html" class="active">Dashboard</a></li>
+                    <li><a href="expenses.html">Expenses</a></li>
+                    <li><a href="budget.html">Budgets</a></li>
+                    <li><a href="category.html">Categories</a></li>
+                </ul>
+            </nav>
+        </aside>
+        <main class="main-content">
+            <header>
+                <h1>Dashboard</h1>
+            </header>
+            <section class="summary-cards">
+                <div class="card">
+                    <span class="card-title">Total Spent</span>
+                    <span class="card-value spent placeholder">--</span>
+                </div>
+                <div class="card">
+                    <span class="card-title">Total Budget</span>
+                    <span class="card-value budget placeholder">--</span>
+                </div>
+                <div class="card">
+                    <span class="card-title">Remaining</span>
+                    <span class="card-value remaining placeholder">--</span>
+                </div>
+            </section>
+            <section class="chart-section">
+                <h2>Spending Breakdown</h2>
+                <div class="chart-container">
+                    <div class="chart-placeholder">
+                        <span>[ Chart.js Graph Placeholder ]</span>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+    <footer>
+        <p>&copy; 2025 Expense Tracker</p>
+    </footer>
+</body>
+</html>

@@ -14,24 +14,30 @@ function loadIncomeExpenditureData() {
 }
 
 function displayIncomeExpenditureCharts(data) {
-    const ctx = document.getElementById('incomeExpenditureChart').getContext('2d');
-    const chart = new Chart(ctx, {
-        type: 'bar',
+    const ctx = document.getElementById('incomeExpenseChart').getContext('2d');
+    const incomeExpenseChart = new Chart(ctx, {
+        type: 'doughnut',
         data: {
             labels: ['Income', 'Expenditure'],
             datasets: [{
-                label: 'Amount',
-                data: [data.income, data.expenditure],
-                backgroundColor: ['#4CAF50', '#F44336'],
-                borderColor: ['#4CAF50', '#F44336'],
-                borderWidth: 1
+                data: [1200, 800], // Example data
+                backgroundColor: ['#4caf50', '#f44336'],
+                borderWidth: 2,
             }]
         },
         options: {
-            scales: {
-                y: {
-                    beginAtZero: true
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        color: '#2d3a4b',
+                        font: { size: 16 }
+                    }
                 }
+            },
+            animation: {
+                animateScale: true
             }
         }
     });
