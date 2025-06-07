@@ -20,9 +20,28 @@
   <main class="main-content">
     <h1 class="page-title">Expenses</h1>
 
-    <div class="filter-bar">
-      <a href="add-expense.html" class="btn-primary">Add Expense</a>
-    </div>
+    <!-- Add Expense Form -->
+    <form class="add-expense-form" style="margin-bottom: 32px;">
+      <label>Date:</label>
+      <input type="date" required>
+      <label>Description:</label>
+      <input type="text" required>
+      <label>Category:</label>
+      <select required>
+        <option value="Food">Food</option>
+        <option value="Transport">Transport</option>
+        <option value="Utilities">Utilities</option>
+      </select>
+      <label>Amount:</label>
+      <input type="number" required>
+      <label>Payment Method:</label>
+      <select required>
+        <option value="Cash">Cash</option>
+        <option value="Credit Card">Credit Card</option>
+        <option value="Debit Card">Debit Card</option>
+      </select>
+      <button class="btn-primary" type="submit">Add Expense</button>
+    </form>
 
     <table class="expense-table">
       <thead>
