@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expense Categories</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <header>
+        <h1>Manage Expense Categories</h1>
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="expenses.html">Expenses</a></li>
+                <li><a href="budget.html">Budget</a></li>
+                <li><a href="category.html">Categories</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <section id="category-form">
+            <h2>Add New Category</h2>
+            <form id="add-category-form">
+                <input type="text" id="category-name" placeholder="Category Name" required>
+                <button type="submit">Add Category</button>
+            </form>
+        </section>
+        <section id="category-list">
+            <h2>Existing Categories</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Category Name</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="categories-table-body">
+                    <!-- Categories will be populated here -->
+                </tbody>
+            </table>
+        </section>
+    </main>
+    <script src="js/category.js"></script>
+</body>
+</html>
