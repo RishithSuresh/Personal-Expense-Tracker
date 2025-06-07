@@ -1,11 +1,10 @@
 // filepath: personal-expense-tracker-frontend/app.js
 
 document.addEventListener('DOMContentLoaded', function() {
-    // --------- Expenses Table Display & Add ---------
     const expensesTableBody = document.getElementById('expensesTableBody');
     const addExpenseForm = document.querySelector('.add-expense-form');
 
-    // Function to fetch and render expenses
+    // Fetch and render expenses
     async function renderExpenses() {
         const res = await fetch('http://localhost:3001/api/expenses');
         const expenses = await res.json();
@@ -25,7 +24,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 `;
             });
         }
-        // Optionally, update dashboard charts here if needed
+        // Update dashboard charts if function exists
         if (typeof loadDashboard === 'function') loadDashboard();
     }
 
@@ -48,7 +47,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             if (response.ok) {
                 addExpenseForm.reset();
-                await renderExpenses(); // Update table immediately
+                await renderExpenses(); // Update table and dashboard
             } else {
                 const error = await response.json();
                 alert('Failed to add expense: ' + (error.error?.sqlMessage || error.error || 'Unknown error'));

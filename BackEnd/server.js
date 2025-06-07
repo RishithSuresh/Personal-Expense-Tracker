@@ -28,11 +28,10 @@ app.get('/api/expenses', (req, res) => {
 });
 
 app.post('/api/expenses', (req, res) => {
-    const { date, description, category, amount, paymentMethod, payment_method } = req.body;
-    const method = paymentMethod || payment_method || '';
+    const { date, description, category, amount, paymentMethod } = req.body;
     db.query(
         'INSERT INTO expenses (date, description, category, amount, payment_method) VALUES (?, ?, ?, ?, ?)',
-        [date, description, category, amount, method],
+        [date, description, category, amount, paymentMethod],
         (err, result) => {
             if (err) {
                 console.error('DB Error:', err);
