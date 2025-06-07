@@ -200,6 +200,31 @@ document.addEventListener('DOMContentLoaded', function() {
     if (document.getElementById('totalSpent')) {
         loadDashboard();
     }
+
+    // --------- Expenses Table Display ---------
+    const expensesTableBody = document.getElementById('expensesTableBody');
+    if (expensesTableBody) {
+        fetch('http://localhost:3001/api/expenses')
+            .then(res => res.json())
+            .then(expenses => {
+                expensesTableBody.innerHTML = '';
+                if (expenses.length === 0) {
+                    expensesTableBody.innerHTML = `<tr><td colspan="5" style="text-align:center;">No expenses to display</td></tr>`;
+                } else {
+                    expenses.forEach(exp => {
+                        expensesTableBody.innerHTML += `
+                            <tr>
+                                <td>${exp.date || ''}</td>
+                                <td>${exp.description || ''}</td>
+                                <td>${exp.category || ''}</td>
+                                <td>₹${exp.amount || 0}</td>
+                                <td>${exp.payment_method || ''}</td>
+                            </tr>
+                        `;
+                    });
+                }
+            });
+    }
 });
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
