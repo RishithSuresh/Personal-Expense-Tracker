@@ -3,12 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Expense Tracker</title>
+    <title>Expense Tracker Home</title>
     <link rel="stylesheet" href="css/styles.css">
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <header>
-        <h1>Welcome to Your Expense Tracker</h1>
+        <h1>Expense Tracker</h1>
         <nav>
             <ul>
                 <li><a href="index.html">Home</a></li>
@@ -20,16 +22,42 @@
     </header>
     <main>
         <section>
-            <h2>Track Your Expenses</h2>
-            <p>Manage your finances effectively by keeping track of your expenses and budgets.</p>
+            <h2>Dashboard</h2>
+            <div class="dashboard-row">
+                <div class="dashboard-card">
+                    <h3>Total Spent</h3>
+                    <div id="total-expenses" class="dashboard-value expenses"></div>
+                </div>
+                <div class="dashboard-card">
+                    <h3>Total Income</h3>
+                    <div id="total-income" class="dashboard-value income"></div>
+                </div>
+                <div class="dashboard-card">
+                    <h3>Current Budget</h3>
+                    <div id="current-budget" class="dashboard-value budget"></div>
+                </div>
+            </div>
         </section>
         <section>
-            <h2>Get Started</h2>
-            <p>Click on the navigation links to begin tracking your expenses, setting budgets, and categorizing your spending.</p>
+            <h2 style="text-align:center;">Budget, Income & Expenses by Category</h2>
+            <div class="charts-row">
+                <div class="chart-container">
+                    <h3>Budget</h3>
+                    <canvas id="budgetPieChart" width="300" height="300"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h3>Income</h3>
+                    <canvas id="incomePieChart" width="300" height="300"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h3>Expenses</h3>
+                    <canvas id="expensePieChart" width="300" height="300"></canvas>
+                </div>
+            </div>
         </section>
     </main>
     <footer>
-        <p>&copy; 2023 Expense Tracker. All rights reserved.</p>
+        <p>&copy; 2023 Expense Tracker</p>
     </footer>
     <script src="js/main.js"></script>
 </body>

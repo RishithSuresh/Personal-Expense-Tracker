@@ -21,16 +21,26 @@
     <main>
         <section>
             <h2>Set Your Budget</h2>
-            <form id="budget-form">
-                <label for="budget-amount">Budget Amount:</label>
-                <input type="number" id="budget-amount" required>
-                <button type="submit">Set Budget</button>
-            </form>
-        </section>
-        <section>
-            <h2>Your Current Budget</h2>
-            <div id="current-budget">
-                <!-- Current budget will be displayed here -->
+            <div class="budget-form-card">
+                <button id="show-budget-form" class="primary-btn" type="button">Add Budget</button>
+                <form id="budget-form" style="display:none; margin-bottom:2rem;">
+                    <div class="form-row">
+                        <label for="budget-category">Category:</label>
+                        <input type="text" id="budget-category" required>
+                    </div>
+                    <div class="form-row">
+                        <label for="budget-limit">Limit:</label>
+                        <input type="number" id="budget-limit" required>
+                    </div>
+                    <div class="form-row">
+                        <label for="budget-spent">Spent:</label>
+                        <input type="number" id="budget-spent" required>
+                    </div>
+                    <button type="submit" class="primary-btn">Add</button>
+                </form>
+            </div>
+            <div class="budgets-row" id="budgets-row">
+                <!-- Budget cards will be added here -->
             </div>
         </section>
     </main>

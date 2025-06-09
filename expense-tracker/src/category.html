@@ -20,20 +20,26 @@
     </header>
     <main>
         <h2>Categories</h2>
-        <div id="category-list">
-            <ul>
-                <li>Food</li>
-                <li>Transport</li>
-                <li>Utilities</li>
-                <li>Entertainment</li>
-                <li>Health</li>
-                <li>Other</li>
-            </ul>
-        </div>
-        <div>
-            <h3>Add New Category</h3>
-            <input type="text" id="new-category" placeholder="Category Name">
-            <button id="add-category">Add Category</button>
+        <div class="category-card">
+            <table class="category-table">
+                <thead>
+                    <tr>
+                        <th>Category Name</th>
+                    </tr>
+                </thead>
+                <tbody id="category-list">
+                    <tr><td>Food</td></tr>
+                    <tr><td>Transport</td></tr>
+                    <tr><td>Utilities</td></tr>
+                    <tr><td>Entertainment</td></tr>
+                    <tr><td>Health</td></tr>
+                    <tr><td>Other</td></tr>
+                </tbody>
+            </table>
+            <div class="add-category-row">
+                <input type="text" id="new-category" placeholder="Category Name">
+                <button id="add-category" class="primary-btn">Add Category</button>
+            </div>
         </div>
     </main>
     <footer>
