@@ -189,29 +189,28 @@ document.addEventListener('DOMContentLoaded', () => {
     const expenseForm = document.getElementById('expense-form');
     const expensesTableBody = document.querySelector('#expenses-table tbody');
     if (expenseForm && expensesTableBody) {
-        expenseForm.addEventListener('submit', function(e) {
+        expenseForm.addEventListener('submit', async function(e) {
             e.preventDefault();
-            const date = document.getElementById('date').value;
+
+            const category_id = document.getElementById('category_id').value;
             const description = document.getElementById('description').value;
-            const category = document.getElementById('category').value;
             const amount = document.getElementById('amount').value;
-            const payment = document.getElementById('payment').value;
+            const payment_method = document.getElementById('payment').value;
+            const date = document.getElementById('date').value;
 
-            // Create a new row
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${date}</td>
-                <td>${description}</td>
-                <td>${category}</td>
-                <td>₱${Number(amount).toLocaleString()}</td>
-                <td>${payment}</td>
-                <td><button class="delete-expense-btn">Delete</button></td>
-            `;
-            expensesTableBody.appendChild(row);
+            const response = await fetch('http://localhost:5000/api/expenses', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ category_id, description, amount, payment_method, date })
+            });
 
-            // Optionally clear and hide the form
-            expenseForm.reset();
-            expenseForm.style.display = 'none';
+            const result = await response.json();
+            if (result.message === 'Expense added') {
+                this.reset();
+                fetchExpenses();
+            } else {
+                alert('Failed to add expense: ' + (result.error || 'Unknown error'));
+            }
         });
     }
 
@@ -239,4 +238,74 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+});
+
+const API_URL = 'http://localhost:5000/api/categories';
+
+function fetchCategories() {
+    fetch(API_URL)
+        .then(res => res.json())
+        .then(data => {
+            const tbody = document.getElementById('category-list');
+            tbody.innerHTML = '';
+            data.forEach(cat => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${cat.id}</td>
+                        <td>${cat.name}</td>
+                    </tr>
+                `;
+            });
+        });
+}
+
+document.getElementById('category-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const id = document.getElementById('category_id').value;
+    const name = document.getElementById('category_name').value;
+
+    const response = await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, name })
+    });
+    const result = await response.json();
+    if (result.message === 'Category added') {
+        this.reset();
+        fetchCategories();
+    } else {
+        alert('Failed to add category: ' + (result.error || 'Unknown error'));
+    }
+});
+
+function fetchExpenses() {
+    fetch('http://localhost:5000/api/expenses')
+        .then(res => res.json())
+        .then(data => {
+            const tbody = document.getElementById('expenses-body');
+            tbody.innerHTML = '';
+            data.forEach(exp => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${exp.date}</td>
+                        <td>${exp.description}</td>
+                        <td>${exp.category_id}</td>
+                        <td>${exp.amount}</td>
+                        <td>${exp.payment_method}</td>
+                        <td>
+                            <button onclick="deleteExpense(${exp.id})">Delete</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        });
+}
+
+document.getElementById('nav-expenses').addEventListener('click', function() {
+    // Show the expenses section and hide others
+    document.getElementById('expenses-section').style.display = 'block';
+    document.getElementById('budget-section').style.display = 'none';
+    document.getElementById('categories-section').style.display = 'none';
+    // Fetch expenses every time you show the section
+    fetchExpenses();
 });

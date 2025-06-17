@@ -19,32 +19,35 @@
         </nav>
     </header>
     <main>
-        <h2>Categories</h2>
         <div class="category-card">
+            <h2>Add Category</h2>
+            <form id="category-form">
+                <input type="number" id="category_id" placeholder="Category ID" required>
+                <input type="text" id="category_name" placeholder="Category Name" required>
+                <button type="submit">Add Category</button>
+            </form>
             <table class="category-table">
                 <thead>
                     <tr>
+                        <th>Category ID</th>
                         <th>Category Name</th>
                     </tr>
                 </thead>
                 <tbody id="category-list">
-                    <tr><td>Food</td></tr>
-                    <tr><td>Transport</td></tr>
-                    <tr><td>Utilities</td></tr>
-                    <tr><td>Entertainment</td></tr>
-                    <tr><td>Health</td></tr>
-                    <tr><td>Other</td></tr>
+                    <tr><td>1</td><td>Food</td></tr>
+                    <tr><td>2</td><td>Transport</td></tr>
+                    <tr><td>3</td><td>Utilities</td></tr>
+                    <tr><td>4</td><td>Entertainment</td></tr>
+                    <tr><td>5</td><td>Health</td></tr>
+                    <tr><td>6</td><td>Other</td></tr>
                 </tbody>
             </table>
-            <div class="add-category-row">
-                <input type="text" id="new-category" placeholder="Category Name">
-                <button id="add-category" class="primary-btn">Add Category</button>
-            </div>
         </div>
     </main>
     <footer>
         <p>&copy; 2023 Expense Tracker</p>
     </footer>
     <script src="js/main.js"></script>
+    <script src="categories.js"></script>
 </body>
 </html>

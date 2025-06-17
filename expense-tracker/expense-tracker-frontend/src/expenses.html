@@ -12,9 +12,9 @@
         <nav>
             <ul>
                 <li><a href="index.html">Home</a></li>
-                <li><a href="expenses.html">Expenses</a></li>
-                <li><a href="budget.html">Budget</a></li>
-                <li><a href="category.html">Categories</a></li>
+                <li><a id="nav-expenses" href="#">Expenses</a></li>
+                <li><a id="nav-budget" href="#">Budget</a></li>
+                <li><a id="nav-categories" href="#">Categories</a></li>
             </ul>
         </nav>
     </header>
@@ -33,9 +33,7 @@
                         <th>Actions</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <!-- Expense entries will be dynamically inserted here -->
-                </tbody>
+                <tbody id="expenses-body"></tbody>
             </table>
             <form id="expense-form" style="display:none;">
                 <h3>Add New Expense</h3>
@@ -45,23 +43,26 @@
                 </div>
                 <div class="form-row">
                     <label for="description">Description:</label>
-                    <input type="text" id="description" required>
+                    <input type="text" id="description" placeholder="Description" required>
                 </div>
                 <div class="form-row">
-                    <label for="category">Category:</label>
-                    <input type="text" id="category" required>
+                    <label for="category_id">Category ID:</label>
+                    <input type="number" id="category_id" placeholder="Category ID" required>
                 </div>
                 <div class="form-row">
                     <label for="amount">Amount:</label>
-                    <input type="number" id="amount" required>
+                    <input type="number" id="amount" placeholder="Amount" required>
                 </div>
                 <div class="form-row">
                     <label for="payment">Payment Method:</label>
-                    <input type="text" id="payment" required>
+                    <input type="text" id="payment" placeholder="Payment Method" required>
                 </div>
                 <button type="submit" class="primary-btn">Add Expense</button>
             </form>
         </div>
+        <div id="expenses-section" style="display:none">...</div>
+        <div id="budget-section" style="display:none">...</div>
+        <div id="categories-section" style="display:none">...</div>
     </main>
     <footer>
         <p>&copy; 2023 Expense Tracker</p>
