@@ -1,8 +1,10 @@
 // This file contains the JavaScript code for the Expense Tracker website.
 // It handles user interactions, data management, and dynamic content updates.
 
+const API_BASE_URL = 'http://localhost:5000/api';
+
 document.addEventListener('DOMContentLoaded', () => {
-    // Call functions to load expenses, income, or categories as needed
+    // Initialize page-specific functionality
     if (document.getElementById('expenses-section')) {
         loadExpenses();
     }
@@ -12,103 +14,169 @@ document.addEventListener('DOMContentLoaded', () => {
     if (document.getElementById('categories-section')) {
         loadCategories();
     }
+
+    // Initialize dashboard if on index page
+    if (document.getElementById('total-expenses') && document.getElementById('total-income')) {
+        updateDashboardTotals();
+        loadDashboardCharts();
+    }
 });
 
 // Function to load expenses
 function loadExpenses() {
     console.log("Loading expenses...");
     fetchExpenses();
+    loadExpensesChart();
 }
 
+// Income loading function
+async function loadIncomesData() {
+    const incomeBody = document.getElementById('income-body');
+    if (!incomeBody) return;
+    try {
+        const res = await fetch(`${API_BASE_URL}/incomes`);
+        const incomes = await res.json();
+        incomeBody.innerHTML = '';
+        incomes.forEach(income => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${income.date}</td>
+                <td>${income.description || ''}</td>
+                <td>₱${Number(income.amount).toLocaleString()}</td>
+                <td>${income.source || ''}</td>
+                <td>
+                    <button onclick="deleteIncome(${income.id})" class="delete-btn">Delete</button>
+                </td>
+            `;
+            incomeBody.appendChild(tr);
+        });
+    } catch (err) {
+        console.error('Error loading incomes:', err);
+    }
+}
 
 // Function to load incomes
 function loadIncomes() {
     console.log("Loading incomes...");
-    fetchIncomes();
+    loadIncomesData();
+    loadIncomesChart();
+}
+
+// Load expenses time series chart
+async function loadExpensesChart() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/expenses/time-series`);
+        const data = await response.json();
+        renderLineChart('expensesLineChart', data, 'Daily Expenses', '#ff4c29');
+    } catch (err) {
+        console.error('Error loading expenses chart:', err);
+    }
+}
+
+// Load incomes time series chart
+async function loadIncomesChart() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/incomes/time-series`);
+        const data = await response.json();
+        renderLineChart('incomeLineChart', data, 'Daily Income', '#1ecb4f');
+    } catch (err) {
+        console.error('Error loading incomes chart:', err);
+    }
 }
 
 // Function to load categories
 function loadCategories() {
-    // Placeholder for loading categories logic
     console.log("Loading categories...");
+    fetchCategories();
 }
 
-// Function to add a new expense
-function addExpense(expense) {
-    // Placeholder for adding expense logic
-    console.log("Adding expense:", expense);
-}
-
-// Function to add a new income
-function addIncome(income) {
-    // Placeholder for adding an income logic
-    console.log("Adding income:", income);
-}
-
-// Example: Replace these with real data from localStorage or your backend
-const budget = localStorage.getItem('budget') || 0;
-const income = localStorage.getItem('income') || 0;
-const expenses = localStorage.getItem('expenses') || 0;
-
-// Display values on the homepage
-if (document.getElementById('current-budget')) {
-    document.getElementById('current-budget').textContent = `₱${Number(budget).toLocaleString()}`;
-}
-if (document.getElementById('total-income')) {
-    document.getElementById('total-income').textContent = `₱${Number(income).toLocaleString()}`;
-}
-if (document.getElementById('total-expenses')) {
-    document.getElementById('total-expenses').textContent = `₱${Number(expenses).toLocaleString()}`;
-}
-
-// Draw the chart if on the homepage
-if (document.getElementById('financeChart')) {
-    const ctx = document.getElementById('financeChart').getContext('2d');
-    new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: ['Budget', 'Income', 'Expenses'],
-            datasets: [{
-                label: 'Amount (₱)',
-                data: [budget, income, expenses],
-                backgroundColor: [
-                    '#2d6cdf',
-                    '#4caf50',
-                    '#e74c3c'
-                ],
-                borderRadius: 8
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: { display: false }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        callback: value => '₱' + value.toLocaleString()
-                    }
-                }
-            }
+// Update dashboard totals for expenses and income
+async function updateDashboardTotals() {
+    try {
+        const expensesRes = await fetch(`${API_BASE_URL}/expenses/total`);
+        const expensesData = await expensesRes.json();
+        const totalExpensesElement = document.getElementById('total-expenses');
+        if (totalExpensesElement) {
+            totalExpensesElement.textContent = '₱' + Number(expensesData.total || 0).toLocaleString();
         }
-    });
+
+        const incomesRes = await fetch(`${API_BASE_URL}/incomes/total`);
+        const incomesData = await incomesRes.json();
+        const totalIncomeElement = document.getElementById('total-income');
+        if (totalIncomeElement) {
+            totalIncomeElement.textContent = '₱' + Number(incomesData.total || 0).toLocaleString();
+        }
+    } catch (err) {
+        console.error('Error loading dashboard totals:', err);
+        const totalExpensesElement = document.getElementById('total-expenses');
+        const totalIncomeElement = document.getElementById('total-income');
+        if (totalExpensesElement) totalExpensesElement.textContent = '₱0';
+        if (totalIncomeElement) totalIncomeElement.textContent = '₱0';
+    }
 }
 
-function getCategoryData(key) {
-    // Returns [{category: "Food", amount: 1000}, ...] or []
-    return JSON.parse(localStorage.getItem(key)) || [];
+// Load and render dashboard charts
+async function loadDashboardCharts() {
+    try {
+        // Load categories to get colors
+        const categoriesRes = await fetch(`${API_BASE_URL}/categories`);
+        const categories = await categoriesRes.json();
+
+        // Load expenses by category
+        const expensesRes = await fetch(`${API_BASE_URL}/expenses/by-category`);
+        const expensesData = await expensesRes.json();
+        renderPieChart('expensePieChart', expensesData, 'Expenses by Category', 'category', categories);
+
+        // Load incomes by source (no category colors for income sources)
+        const incomesRes = await fetch(`${API_BASE_URL}/incomes/by-source`);
+        const incomesData = await incomesRes.json();
+        renderPieChart('incomePieChart', incomesData, 'Income by Source', 'source');
+    } catch (err) {
+        console.error('Error loading dashboard charts:', err);
+    }
 }
 
-function renderPieChart(canvasId, dataArr, chartLabel) {
+function renderPieChart(canvasId, dataArr, chartLabel, labelKey, categories = null) {
     const ctx = document.getElementById(canvasId);
     if (!ctx) return;
-    const labels = dataArr.map(item => item.category);
-    const data = dataArr.map(item => item.amount);
-    const colors = [
-        '#2d6cdf', '#4caf50', '#e74c3c', '#f1c40f', '#9b59b6', '#16a085', '#e67e22', '#34495e'
-    ];
+
+    // Clear any existing chart
+    const existingChart = Chart.getChart(ctx);
+    if (existingChart) {
+        existingChart.destroy();
+    }
+
+    if (!dataArr || dataArr.length === 0) {
+        // Show "No data" message
+        ctx.getContext('2d').clearRect(0, 0, ctx.width, ctx.height);
+        const context = ctx.getContext('2d');
+        context.font = '16px Arial';
+        context.fillStyle = '#bfc9da';
+        context.textAlign = 'center';
+        context.fillText('No data available', ctx.width / 2, ctx.height / 2);
+        return;
+    }
+
+    const labels = dataArr.map(item => item[labelKey] || 'Unknown');
+    const data = dataArr.map(item => parseFloat(item.amount) || 0);
+
+    // Get colors based on categories or use default colors
+    let colors;
+    if (categories && labelKey === 'category') {
+        // Use category colors for expense charts
+        colors = dataArr.map(item => {
+            const category = categories.find(cat => cat.name === item[labelKey]);
+            return category ? category.color : '#ff4c29'; // fallback color
+        });
+    } else {
+        // Use default colors for income sources or when categories not available
+        const defaultColors = [
+            '#ff4c29', '#1ecb4f', '#2d8cff', '#f1c40f', '#9b59b6',
+            '#16a085', '#e67e22', '#34495e', '#ff6b6b', '#4ecdc4'
+        ];
+        colors = defaultColors.slice(0, data.length);
+    }
+
     new Chart(ctx, {
         type: 'pie',
         data: {
@@ -117,24 +185,129 @@ function renderPieChart(canvasId, dataArr, chartLabel) {
                 label: chartLabel,
                 data: data,
                 backgroundColor: colors,
-                borderWidth: 1
+                borderWidth: 2,
+                borderColor: '#232733'
             }]
         },
         options: {
             responsive: true,
+            maintainAspectRatio: true,
             plugins: {
-                legend: { position: 'bottom' }
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        color: '#f5f6fa',
+                        padding: 15,
+                        font: {
+                            size: 12
+                        }
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const label = context.label || '';
+                            const value = context.parsed || 0;
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = ((value / total) * 100).toFixed(1);
+                            return `${label}: ₱${value.toLocaleString()} (${percentage}%)`;
+                        }
+                    }
+                }
             }
         }
     });
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    // Render pie charts if on homepage
-    renderPieChart('budgetPieChart', getCategoryData('budgetCategories'), 'Budget');
-    renderPieChart('incomePieChart', getCategoryData('incomeCategories'), 'Income');
-    renderPieChart('expensePieChart', getCategoryData('expenseCategories'), 'Expenses');
+// Line chart functionality for expenses and income pages
+function renderLineChart(canvasId, dataArr, chartLabel, color) {
+    const ctx = document.getElementById(canvasId);
+    if (!ctx) return;
 
+    // Clear any existing chart
+    const existingChart = Chart.getChart(ctx);
+    if (existingChart) {
+        existingChart.destroy();
+    }
+
+    if (!dataArr || dataArr.length === 0) {
+        // Show "No data" message
+        const context = ctx.getContext('2d');
+        context.clearRect(0, 0, ctx.width, ctx.height);
+        context.font = '16px Arial';
+        context.fillStyle = '#bfc9da';
+        context.textAlign = 'center';
+        context.fillText('No data available', ctx.width / 2, ctx.height / 2);
+        return;
+    }
+
+    const labels = dataArr.map(item => {
+        const date = new Date(item.date);
+        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    });
+    const data = dataArr.map(item => parseFloat(item.amount) || 0);
+
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: chartLabel,
+                data: data,
+                borderColor: color,
+                backgroundColor: color + '20',
+                borderWidth: 3,
+                fill: true,
+                tension: 0.4,
+                pointBackgroundColor: color,
+                pointBorderColor: '#232733',
+                pointBorderWidth: 2,
+                pointRadius: 5
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    labels: {
+                        color: '#f5f6fa'
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return `${context.dataset.label}: ₱${context.parsed.y.toLocaleString()}`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    ticks: {
+                        color: '#bfc9da'
+                    },
+                    grid: {
+                        color: '#3a3f4b'
+                    }
+                },
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        color: '#bfc9da',
+                        callback: value => '₱' + value.toLocaleString()
+                    },
+                    grid: {
+                        color: '#3a3f4b'
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Initialize form toggles and event listeners
+document.addEventListener('DOMContentLoaded', () => {
     // Toggle expense form
     const showBtn = document.getElementById('show-expense-form');
     const form = document.getElementById('expense-form');
@@ -199,16 +372,23 @@ document.addEventListener('DOMContentLoaded', () => {
             const payment_method = document.getElementById('payment').value;
             const date = document.getElementById('date').value;
 
-            const response = await fetch('http://localhost:5000/api/expenses', {
+            console.log('Adding expense:', { category_id, description, amount, payment_method, date });
+
+            const response = await fetch(`${API_BASE_URL}/expenses`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ category_id, description, amount, payment_method, date })
             });
 
             const result = await response.json();
+            console.log('Expense response:', result);
+
             if (result.message === 'Expense added') {
+                alert('Expense added successfully!');
                 this.reset();
                 fetchExpenses();
+                loadExpensesChart(); // Refresh chart after adding expense
+                updateDashboardTotals(); // Update dashboard if on index page
             } else {
                 alert('Failed to add expense: ' + (result.error || 'Unknown error'));
             }
@@ -258,57 +438,48 @@ document.addEventListener('DOMContentLoaded', () => {
             const source = document.getElementById('income-source').value;
             const description = document.getElementById('income-description').value;
 
-            await fetch('http://localhost:5000/api/incomes', {
+            console.log('Adding income:', { date, amount, source, description });
+
+            const response = await fetch(`${API_BASE_URL}/incomes`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ date, amount, source, description })
             });
-            this.reset();
-            incomeForm.style.display = 'none';
-            loadIncomes();
+
+            const result = await response.json();
+            console.log('Income response:', result);
+
+            if (result.message === 'Income added') {
+                alert('Income added successfully!');
+                this.reset();
+                incomeForm.style.display = 'none';
+                loadIncomes();
+                updateDashboardTotals(); // Update dashboard if on index page
+            } else {
+                alert('Failed to add income: ' + (result.error || 'Unknown error'));
+            }
         });
     }
 
-    async function loadIncomes() {
-        const incomeBody = document.getElementById('income-body');
-        if (!incomeBody) return;
-        const res = await fetch('http://localhost:5000/api/incomes');
-        const incomes = await res.json();
-        incomeBody.innerHTML = '';
-        incomes.forEach(income => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>${income.date}</td>
-                <td>${income.description || ''}</td>
-                <td>${income.amount}</td>
-                <td>${income.source || ''}</td>
-                <td>
-                    <button onclick="deleteIncome(${income.id})" class="delete-btn">Delete</button>
-                </td>
-            `;
-            incomeBody.appendChild(tr);
-        });
-    }
-
+    // Delete income function
     window.deleteIncome = async function(id) {
-        await fetch(`http://localhost:5000/api/incomes/${id}`, { method: 'DELETE' });
-        loadIncomes();
-    };
-
-    window.addEventListener('DOMContentLoaded', () => {
-        if (document.getElementById('income-section')) {
-            loadIncomes();
+        if (!confirm("Are you sure you want to delete this income?")) return;
+        try {
+            await fetch(`${API_BASE_URL}/incomes/${id}`, { method: 'DELETE' });
+            loadIncomesData();
+            loadIncomesChart(); // Refresh chart after deletion
+        } catch (err) {
+            console.error('Error deleting income:', err);
         }
-    });
+    };
 });
 
-const API_URL = 'http://localhost:5000/api/categories';
-
 function fetchCategories() {
-    fetch(API_URL)
+    fetch(`${API_BASE_URL}/categories`)
         .then(res => res.json())
         .then(data => {
             const tbody = document.getElementById('category-list');
+            if (!tbody) return;
             tbody.innerHTML = '';
             data.forEach(cat => {
                 tbody.innerHTML += `
@@ -318,87 +489,80 @@ function fetchCategories() {
                     </tr>
                 `;
             });
+        })
+        .catch(err => {
+            console.error('Error loading categories:', err);
         });
 }
 
-document.getElementById('category-form').addEventListener('submit', async function(e) {
-    e.preventDefault();
-    const id = document.getElementById('category_id').value;
-    const name = document.getElementById('category_name').value;
-    await fetch('http://localhost:5000/api/categories', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id, name })
+const catForm = document.getElementById('category-form');
+if (catForm) {
+    catForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const id = document.getElementById('category_id').value;
+        const name = document.getElementById('category_name').value;
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/categories`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id, name })
+            });
+
+            const result = await response.json();
+            if (result.message === 'Category added') {
+                this.reset();
+                loadCategories();
+            } else {
+                alert('Failed to add category: ' + (result.error || 'Unknown error'));
+            }
+        } catch (err) {
+            console.error('Error adding category:', err);
+            alert('An error occurred while adding the category.');
+        }
     });
-    this.reset();
-    loadCategories();
-});
+}
 
 function fetchExpenses() {
-    fetch('http://localhost:5000/api/expenses')
+    fetch(`${API_BASE_URL}/expenses`)
         .then(res => res.json())
         .then(data => {
             const tbody = document.getElementById('expenses-body');
+            if (!tbody) return;
             tbody.innerHTML = '';
             data.forEach(exp => {
                 tbody.innerHTML += `
                     <tr>
                         <td>${exp.date}</td>
                         <td>${exp.description}</td>
-                        <td>${exp.category_id}</td>
-                        <td>${exp.amount}</td>
+                        <td>${exp.category_name || exp.category_id}</td>
+                        <td>₱${Number(exp.amount).toLocaleString()}</td>
                         <td>${exp.payment_method}</td>
                         <td>
-                            <button onclick="deleteExpense(${exp.id})">Delete</button>
+                            <button onclick="deleteExpense(${exp.id})" class="delete-btn">Delete</button>
                         </td>
                     </tr>
                 `;
             });
+        })
+        .catch(err => {
+            console.error('Error loading expenses:', err);
         });
 }
 
-function showSection(sectionId) {
-    document.getElementById('expenses-section').style.display = 'none';
-    document.getElementById('budget-section').style.display = 'none';
-    document.getElementById('categories-section').style.display = 'none';
-    document.getElementById(sectionId).style.display = 'block';
-}
-
-// Navigation event listeners
-document.getElementById('nav-expenses').addEventListener('click', function(e) {
-    e.preventDefault();
-    showSection('expenses-section');
-    fetchExpenses();
-});
-document.getElementById('nav-budget').addEventListener('click', function(e) {
-    e.preventDefault();
-    showSection('budget-section');
-    // fetchBudget(); // if you have a function for budget
-});
-document.getElementById('nav-categories').addEventListener('click', function(e) {
-    e.preventDefault();
-    showSection('categories-section');
-    // fetchCategories(); // if you have a function for categories
-});
-
-// Show expenses section by default on page load
-showSection('expenses-section');
-fetchExpenses();
-
-document.addEventListener('DOMContentLoaded', function() {
-    fetchExpenses();
-});
-
+// Delete expense function
 function deleteExpense(id) {
     if (!confirm("Are you sure you want to delete this expense?")) return;
 
-    fetch(`http://localhost:5000/api/expenses/${id}`, {
+    fetch(`${API_BASE_URL}/expenses/${id}`, {
         method: 'DELETE'
     })
     .then(res => res.json())
     .then(result => {
         if (result.message === 'Expense deleted') {
             fetchExpenses(); // Refresh table
+            loadExpensesChart(); // Refresh chart
+            updateDashboardTotals(); // Update dashboard if on index page
         } else {
             alert('Failed to delete expense: ' + (result.error || 'Unknown error'));
         }
@@ -409,137 +573,11 @@ function deleteExpense(id) {
     });
 }
 
-// --- Budget Section Logic ---
-
-// Fetch categories for the budget form dropdown
-async function populateBudgetCategories() {
-    const select = document.getElementById('budget-category');
-    if (!select) return;
-    select.innerHTML = '<option value="">Select a category</option>';
-    try {
-        const res = await fetch('http://localhost:5000/api/categories');
-        const categories = await res.json();
-        categories.forEach(cat => {
-            const option = document.createElement('option');
-            option.value = cat.id;
-            option.textContent = cat.name;
-            select.appendChild(option);
-        });
-    } catch (err) {
-        select.innerHTML = '<option value="">No categories found</option>';
-    }
-}
-
-// Call this on page load
-document.addEventListener('DOMContentLoaded', () => {
-    if (document.getElementById('budget-category')) {
-        populateBudgetCategories();
+// Additional initialization for specific pages
+document.addEventListener('DOMContentLoaded', function() {
+    // This ensures expenses are loaded if we're on the expenses page
+    if (document.getElementById('expenses-section')) {
+        fetchExpenses();
     }
 });
 
-// Fetch and display budgets
-async function fetchBudgets() {
-    const userId = 1; // Replace with actual user ID if you have authentication
-    const res = await fetch(`http://localhost:5000/api/budgets/${userId}`);
-    const budgets = await res.json();
-    const budgetsRow = document.getElementById('budgets-row');
-    if (budgetsRow) {
-        budgetsRow.innerHTML = '';
-        budgets.forEach(budget => {
-            const card = document.createElement('div');
-            card.className = 'budget-card';
-            card.innerHTML = `
-                <strong>${budget.category_name}</strong>
-                <table class="budget-table">
-                    <tr>
-                        <td>Limit:</td>
-                        <td class="budget-limit">₱${Number(budget.limit_amount).toLocaleString()}</td>
-                    </tr>
-                    <tr>
-                        <td>Spent:</td>
-                        <td class="budget-spent">₱${Number(budget.spent_amount).toLocaleString()}</td>
-                    </tr>
-                </table>
-                <button class="delete-budget-btn" data-id="${budget.id}">Delete</button>
-            `;
-            budgetsRow.appendChild(card);
-        });
-    }
-}
-
-// Handle budget form submission
-const formBudget = document.getElementById('budget-form');
-if (formBudget) {
-    formBudget.addEventListener('submit', async function(e) {
-        e.preventDefault();
-        const category_id = document.getElementById('budget-category').value;
-        const limit_amount = document.getElementById('budget-limit').value;
-        const spent_amount = document.getElementById('budget-spent').value || 0;
-        const user_id = 1; // Replace with actual user ID if you have authentication
-
-        const response = await fetch('http://localhost:5000/api/budgets', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ category_id, limit_amount, spent_amount, user_id })
-        });
-
-        const result = await response.json();
-        if (result.message === 'Budget added') {
-            this.reset();
-            formBudget.style.display = 'none';
-            fetchBudgets();
-        } else {
-            alert('Failed to add budget: ' + (result.error || 'Unknown error'));
-        }
-    });
-}
-
-// Show/hide budget form
-const showBtnBudget = document.getElementById('show-budget-form');
-if (showBtnBudget && formBudget) {
-    showBtnBudget.addEventListener('click', () => {
-        formBudget.style.display = formBudget.style.display === 'none' ? 'block' : 'none';
-        populateBudgetCategories();
-    });
-}
-
-// Delete budget
-document.addEventListener('click', async function(e) {
-    if (e.target.classList.contains('delete-budget-btn')) {
-        const id = e.target.getAttribute('data-id');
-        if (confirm('Are you sure you want to delete this budget?')) {
-            await fetch(`http://localhost:5000/api/budgets/${id}`, { method: 'DELETE' });
-            fetchBudgets();
-        }
-    }
-});
-
-// On budget page load, fetch budgets and categories
-if (document.getElementById('budgets-row')) {
-    fetchBudgets();
-    populateBudgetCategories();
-}
-
-// Update dashboard totals for expenses and income
-async function updateDashboardTotals() {
-    try {
-        const expensesRes = await fetch('http://localhost:5000/api/expenses/total');
-        const expensesData = await expensesRes.json();
-        document.getElementById('total-expenses').textContent =
-            '₱' + Number(expensesData.total || 0).toLocaleString();
-
-        const incomesRes = await fetch('http://localhost:5000/api/incomes/total');
-        const incomesData = await incomesRes.json();
-        document.getElementById('total-income').textContent =
-            '₱' + Number(incomesData.total || 0).toLocaleString();
-    } catch (err) {
-        document.getElementById('total-expenses').textContent = '₱0';
-        document.getElementById('total-income').textContent = '₱0';
-    }
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-    if (document.getElementById('total-expenses') && document.getElementById('total-income')) {
-        updateDashboardTotals();
-    }
-});

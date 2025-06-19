@@ -32,3 +32,34 @@ export const getExpensesTotal = async (req, res) => {
     const [rows] = await db.query('SELECT SUM(amount) AS total FROM expenses');
     res.json({ total: rows[0].total || 0 });
 };
+
+export const getExpensesByCategory = async (req, res) => {
+    try {
+        const [rows] = await db.query(
+            `SELECT c.name as category, SUM(e.amount) as amount
+             FROM expenses e
+             LEFT JOIN categories c ON e.category_id = c.id
+             GROUP BY e.category_id, c.name
+             HAVING amount > 0
+             ORDER BY amount DESC`
+        );
+        res.json(rows);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
+
+export const getExpensesTimeSeries = async (req, res) => {
+    try {
+        const [rows] = await db.query(
+            `SELECT DATE(date) as date, SUM(amount) as amount
+             FROM expenses
+             WHERE date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+             GROUP BY DATE(date)
+             ORDER BY date ASC`
+        );
+        res.json(rows);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};

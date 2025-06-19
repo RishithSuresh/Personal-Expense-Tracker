@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Income - Expense Tracker</title>
     <link rel="stylesheet" href="css/styles.css">
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <header>
@@ -14,7 +16,9 @@
                 <li><a href="index.html">Home</a></li>
                 <li><a href="expenses.html">Expenses</a></li>
                 <li><a href="income.html">Income</a></li>
+                <li><a href="budget.html">Budget</a></li>
                 <li><a href="category.html">Categories</a></li>
+                <li><a href="analytics.html">Analytics</a></li>
             </ul>
         </nav>
     </header>
@@ -22,6 +26,15 @@
         <div id="income-section">
             <h2>Income</h2>
             <button id="show-income-form" class="primary-btn" type="button">Add Income</button>
+
+            <!-- Income Chart Section -->
+            <section class="chart-section">
+                <h3>Income Over Time (Last 30 Days)</h3>
+                <div class="chart-container-line">
+                    <canvas id="incomeLineChart" width="400" height="200"></canvas>
+                </div>
+            </section>
+
             <div class="income-card">
                 <table id="income-table">
                     <thead>

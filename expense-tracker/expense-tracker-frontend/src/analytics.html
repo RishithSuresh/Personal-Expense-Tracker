@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial Analytics - Expense Tracker</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <header>
+        <h1>Financial Analytics</h1>
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="expenses.html">Expenses</a></li>
+                <li><a href="income.html">Income</a></li>
+                <li><a href="budget.html">Budget</a></li>
+                <li><a href="category.html">Categories</a></li>
+                <li><a href="analytics.html">Analytics</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <div id="analytics-section">
+            <!-- Financial Health Score -->
+            <section class="health-score-section">
+                <h2>Financial Health Overview</h2>
+                <div class="dashboard-row">
+                    <div class="dashboard-card health-card">
+                        <h3>Health Score</h3>
+                        <div id="health-score" class="health-score-value">0</div>
+                        <div id="health-status" class="health-status">Calculating...</div>
+                    </div>
+                    <div class="dashboard-card">
+                        <h3>Savings Rate</h3>
+                        <div id="savings-rate" class="dashboard-value income">0%</div>
+                    </div>
+                    <div class="dashboard-card">
+                        <h3>Monthly Savings</h3>
+                        <div id="monthly-savings" class="dashboard-value">₱0</div>
+                    </div>
+                    <div class="dashboard-card">
+                        <h3>Income Growth</h3>
+                        <div id="income-growth" class="dashboard-value">0%</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Monthly Trends Chart -->
+            <section class="chart-section">
+                <h3>Monthly Income vs Expenses Trend</h3>
+                <div class="chart-container-line">
+                    <canvas id="monthlyTrendChart" width="400" height="200"></canvas>
+                </div>
+            </section>
+
+            <!-- Analytics Grid -->
+            <div class="analytics-grid">
+                <!-- Top Categories -->
+                <section class="analytics-card">
+                    <h3>Top Expense Categories (Last 30 Days)</h3>
+                    <div class="chart-container-small">
+                        <canvas id="topCategoriesChart" width="300" height="300"></canvas>
+                    </div>
+                </section>
+
+                <!-- Income Sources -->
+                <section class="analytics-card">
+                    <h3>Income Sources (Last 30 Days)</h3>
+                    <div class="chart-container-small">
+                        <canvas id="incomeSourcesChart" width="300" height="300"></canvas>
+                    </div>
+                </section>
+
+                <!-- Daily Spending Pattern -->
+                <section class="analytics-card">
+                    <h3>Average Spending by Day of Week</h3>
+                    <div class="chart-container-small">
+                        <canvas id="dailyPatternChart" width="300" height="200"></canvas>
+                    </div>
+                </section>
+
+                <!-- Spending Trends -->
+                <section class="analytics-card">
+                    <h3>Category Spending Trends</h3>
+                    <div class="chart-container-small">
+                        <canvas id="spendingTrendsChart" width="300" height="200"></canvas>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Detailed Analytics Tables -->
+            <section class="analytics-tables">
+                <div class="table-container">
+                    <h3>Monthly Summary</h3>
+                    <div class="table-wrapper">
+                        <table id="monthly-summary-table" class="analytics-table">
+                            <thead>
+                                <tr>
+                                    <th>Month</th>
+                                    <th>Income</th>
+                                    <th>Expenses</th>
+                                    <th>Net Savings</th>
+                                    <th>Savings Rate</th>
+                                </tr>
+                            </thead>
+                            <tbody id="monthly-summary-body">
+                                <!-- Data will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <h3>Top Categories Analysis</h3>
+                    <div class="table-wrapper">
+                        <table id="categories-analysis-table" class="analytics-table">
+                            <thead>
+                                <tr>
+                                    <th>Category</th>
+                                    <th>Total Amount</th>
+                                    <th>Transactions</th>
+                                    <th>Average</th>
+                                    <th>Percentage</th>
+                                </tr>
+                            </thead>
+                            <tbody id="categories-analysis-body">
+                                <!-- Data will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Period Selector -->
+            <section class="period-selector">
+                <h3>Analysis Period</h3>
+                <div class="period-buttons">
+                    <button class="period-btn active" data-period="30">Last 30 Days</button>
+                    <button class="period-btn" data-period="90">Last 3 Months</button>
+                    <button class="period-btn" data-period="180">Last 6 Months</button>
+                    <button class="period-btn" data-period="365">Last Year</button>
+                </div>
+            </section>
+        </div>
+    </main>
+    <footer>
+        <p>&copy; 2023 Expense Tracker</p>
+    </footer>
+    <script src="js/main.js"></script>
+    <script src="js/analytics.js"></script>
+</body>
+</html>
