@@ -71,22 +71,41 @@ async function loadFinancialHealth() {
 // Load monthly trends chart
 async function loadMonthlyTrends() {
     try {
+        console.log('Loading monthly trends...');
         const response = await fetch(`${API_BASE_URL}/analytics/monthly`);
         const data = await response.json();
-        
+        console.log('Monthly trends data:', data);
+
         const ctx = document.getElementById('monthlyTrendChart');
-        if (!ctx) return;
-        
+        if (!ctx) {
+            console.error('Monthly trend chart canvas not found!');
+            return;
+        }
+
         // Clear existing chart
         const existingChart = Chart.getChart(ctx);
         if (existingChart) {
             existingChart.destroy();
         }
-        
+
+        if (!data || data.length === 0) {
+            console.log('No monthly trends data available');
+            // Show "No data" message
+            const context = ctx.getContext('2d');
+            context.clearRect(0, 0, ctx.width, ctx.height);
+            context.font = '16px Arial';
+            context.fillStyle = '#bfc9da';
+            context.textAlign = 'center';
+            context.fillText('No data available - Add income and expenses to see trends', ctx.width / 2, ctx.height / 2);
+            return;
+        }
+
         const labels = data.map(item => `${item.month_name} ${item.year}`);
         const incomeData = data.map(item => Number(item.total_income || 0));
         const expenseData = data.map(item => Number(item.total_expenses || 0));
         const savingsData = data.map(item => Number(item.net_savings || 0));
+
+        console.log('Chart data prepared:', { labels, incomeData, expenseData, savingsData });
         
         new Chart(ctx, {
             type: 'line',
@@ -161,6 +180,8 @@ async function loadMonthlyTrends() {
                 }
             }
         });
+
+        console.log('✅ Monthly trends chart created successfully');
     } catch (err) {
         console.error('Error loading monthly trends:', err);
     }

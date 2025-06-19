@@ -2,26 +2,77 @@ import { db } from '../db.js';
 
 export const getMonthlyAnalytics = async (req, res) => {
     try {
-        const [rows] = await db.query(`
-            SELECT 
+        // Get expenses by month
+        const [expenseRows] = await db.execute(`
+            SELECT
                 YEAR(date) as year,
                 MONTH(date) as month,
                 MONTHNAME(date) as month_name,
-                SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END) as total_expenses,
-                SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END) as total_income,
-                (SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END) - 
-                 SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END)) as net_savings
-            FROM (
-                SELECT date, amount, 'expense' as type FROM expenses
-                UNION ALL
-                SELECT date, amount, 'income' as type FROM incomes
-            ) combined
+                SUM(amount) as total_expenses
+            FROM expenses
             WHERE date >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH)
-            GROUP BY YEAR(date), MONTH(date)
+            GROUP BY YEAR(date), MONTH(date), MONTHNAME(date)
             ORDER BY year DESC, month DESC
         `);
-        res.json(rows);
+
+        // Get income by month
+        const [incomeRows] = await db.execute(`
+            SELECT
+                YEAR(date) as year,
+                MONTH(date) as month,
+                MONTHNAME(date) as month_name,
+                SUM(amount) as total_income
+            FROM incomes
+            WHERE date >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH)
+            GROUP BY YEAR(date), MONTH(date), MONTHNAME(date)
+            ORDER BY year DESC, month DESC
+        `);
+
+        // Combine the data
+        const monthlyData = new Map();
+
+        // Add expenses
+        expenseRows.forEach(row => {
+            const key = `${row.year}-${row.month}`;
+            monthlyData.set(key, {
+                year: row.year,
+                month: row.month,
+                month_name: row.month_name,
+                total_expenses: parseFloat(row.total_expenses) || 0,
+                total_income: 0,
+                net_savings: 0
+            });
+        });
+
+        // Add income
+        incomeRows.forEach(row => {
+            const key = `${row.year}-${row.month}`;
+            if (monthlyData.has(key)) {
+                monthlyData.get(key).total_income = parseFloat(row.total_income) || 0;
+            } else {
+                monthlyData.set(key, {
+                    year: row.year,
+                    month: row.month,
+                    month_name: row.month_name,
+                    total_expenses: 0,
+                    total_income: parseFloat(row.total_income) || 0,
+                    net_savings: 0
+                });
+            }
+        });
+
+        // Calculate net savings and convert to array
+        const result = Array.from(monthlyData.values()).map(item => ({
+            ...item,
+            net_savings: item.total_income - item.total_expenses
+        })).sort((a, b) => {
+            if (a.year !== b.year) return b.year - a.year;
+            return b.month - a.month;
+        });
+
+        res.json(result);
     } catch (err) {
+        console.error('Monthly analytics error:', err);
         res.status(500).json({ error: err.message });
     }
 };
