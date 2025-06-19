@@ -519,3 +519,27 @@ if (document.getElementById('budgets-row')) {
     fetchBudgets();
     populateBudgetCategories();
 }
+
+// Update dashboard totals for expenses and income
+async function updateDashboardTotals() {
+    try {
+        const expensesRes = await fetch('http://localhost:5000/api/expenses/total');
+        const expensesData = await expensesRes.json();
+        document.getElementById('total-expenses').textContent =
+            '₱' + Number(expensesData.total || 0).toLocaleString();
+
+        const incomesRes = await fetch('http://localhost:5000/api/incomes/total');
+        const incomesData = await incomesRes.json();
+        document.getElementById('total-income').textContent =
+            '₱' + Number(incomesData.total || 0).toLocaleString();
+    } catch (err) {
+        document.getElementById('total-expenses').textContent = '₱0';
+        document.getElementById('total-income').textContent = '₱0';
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    if (document.getElementById('total-expenses') && document.getElementById('total-income')) {
+        updateDashboardTotals();
+    }
+});

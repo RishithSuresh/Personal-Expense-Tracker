@@ -27,3 +27,8 @@ export const deleteExpense = async (req, res) => {
     await db.query('DELETE FROM expenses WHERE id = ?', [id]);
     res.json({ message: 'Expense deleted' });
 };
+
+export const getExpensesTotal = async (req, res) => {
+    const [rows] = await db.query('SELECT SUM(amount) AS total FROM expenses');
+    res.json({ total: rows[0].total || 0 });
+};

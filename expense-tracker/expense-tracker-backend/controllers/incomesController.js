@@ -36,3 +36,8 @@ export const deleteIncome = async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 };
+
+export const getIncomesTotal = async (req, res) => {
+    const [rows] = await db.query('SELECT SUM(amount) AS total FROM incomes');
+    res.json({ total: rows[0].total || 0 });
+};
