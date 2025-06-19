@@ -2,10 +2,16 @@
 // It handles user interactions, data management, and dynamic content updates.
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Initialize the application
-    loadExpenses();
-    loadBudget();
-    loadCategories();
+    // Call functions to load expenses, income, or categories as needed
+    if (document.getElementById('expenses-section')) {
+        loadExpenses();
+    }
+    if (document.getElementById('income-section')) {
+        loadIncomes();
+    }
+    if (document.getElementById('categories-section')) {
+        loadCategories();
+    }
 });
 
 // Function to load expenses
@@ -15,11 +21,10 @@ function loadExpenses() {
 }
 
 
-// Function to load budget
-function loadBudget() {
-    // Placeholder for loading budget logic
-    console.log("Loading budget...");
-    fetchBudgets();
+// Function to load incomes
+function loadIncomes() {
+    console.log("Loading incomes...");
+    fetchIncomes();
 }
 
 // Function to load categories
@@ -34,16 +39,10 @@ function addExpense(expense) {
     console.log("Adding expense:", expense);
 }
 
-// Function to update budget
-function updateBudget(newBudget) {
-    // Placeholder for updating budget logic
-    console.log("Updating budget to:", newBudget);
-}
-
-// Function to categorize an expense
-function categorizeExpense(expenseId, category) {
-    // Placeholder for categorizing expense logic
-    console.log("Categorizing expense:", expenseId, "as", category);
+// Function to add a new income
+function addIncome(income) {
+    // Placeholder for adding an income logic
+    console.log("Adding income:", income);
 }
 
 // Example: Replace these with real data from localStorage or your backend
@@ -326,19 +325,13 @@ document.getElementById('category-form').addEventListener('submit', async functi
     e.preventDefault();
     const id = document.getElementById('category_id').value;
     const name = document.getElementById('category_name').value;
-
-    const response = await fetch(API_URL, {
+    await fetch('http://localhost:5000/api/categories', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id, name })
     });
-    const result = await response.json();
-    if (result.message === 'Category added') {
-        this.reset();
-        fetchCategories();
-    } else {
-        alert('Failed to add category: ' + (result.error || 'Unknown error'));
-    }
+    this.reset();
+    loadCategories();
 });
 
 function fetchExpenses() {
@@ -437,6 +430,13 @@ async function populateBudgetCategories() {
     }
 }
 
+// Call this on page load
+document.addEventListener('DOMContentLoaded', () => {
+    if (document.getElementById('budget-category')) {
+        populateBudgetCategories();
+    }
+});
+
 // Fetch and display budgets
 async function fetchBudgets() {
     const userId = 1; // Replace with actual user ID if you have authentication
@@ -477,7 +477,7 @@ if (formBudget) {
         const spent_amount = document.getElementById('budget-spent').value || 0;
         const user_id = 1; // Replace with actual user ID if you have authentication
 
-        await fetch('http://localhost:5000/api/budgets', {
+        const response = await fetch('http://localhost:5000/api/budgets', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ category_id, limit_amount, spent_amount, user_id })

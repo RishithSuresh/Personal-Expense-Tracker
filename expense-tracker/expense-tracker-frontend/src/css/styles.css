@@ -91,8 +91,6 @@ h2 {
 .dashboard-card,
 .chart-container,
 .expenses-card,
-.budget-card,
-.budget-form-card,
 .category-card {
     background: #232733;
     border-radius: 16px;
@@ -267,63 +265,6 @@ footer {
     font-size: 1rem;
     letter-spacing: 0.5px;
     box-shadow: 0 -2px 8px rgba(0,0,0,0.08);
-}
-
-.budgets-row {
-    display: flex;
-    gap: 2rem;
-    justify-content: flex-start;
-    margin-bottom: 2rem;
-    flex-wrap: wrap;
-}
-
-.budget-card {
-    padding: 1.5rem 2rem;
-    min-width: 260px;
-    max-width: 320px;
-    flex: 1 1 260px;
-    margin-bottom: 1rem;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-}
-
-.budget-card strong {
-    font-size: 1.2rem;
-    font-weight: 700;
-    margin-bottom: 1rem;
-    color: #2d8cff;
-}
-
-.budget-table {
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0 0.5rem;
-    margin-top: 0.5rem;
-}
-
-.budget-table td {
-    padding: 0.3rem 0.5rem;
-    font-size: 1rem;
-    border: none;
-    color: #f5f6fa;
-}
-
-.budget-limit {
-    color: #1ecb4f;
-    font-weight: 600;
-}
-
-.budget-spent {
-    color: #ff4c29;
-    font-weight: 600;
-}
-
-.budget-form-card {
-    padding: 2rem 2.5rem 2rem 2.5rem;
-    max-width: 420px;
-    margin-bottom: 2rem;
-    margin-left: 0;
 }
 
 .category-card {

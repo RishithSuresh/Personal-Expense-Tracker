@@ -1,8 +1,12 @@
 import { db } from '../db.js';
 
 export const getCategories = async (req, res) => {
-    const [rows] = await db.query('SELECT * FROM categories');
-    res.json(rows);
+    try {
+        const [rows] = await db.query('SELECT id, name FROM categories');
+        res.json(rows);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 };
 
 export const addCategory = async (req, res) => {
