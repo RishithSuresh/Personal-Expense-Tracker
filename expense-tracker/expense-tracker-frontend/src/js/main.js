@@ -10,9 +10,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Function to load expenses
 function loadExpenses() {
-    // Placeholder for loading expenses logic
     console.log("Loading expenses...");
+    fetchExpenses();
 }
+
 
 // Function to load budget
 function loadBudget() {
@@ -301,11 +302,54 @@ function fetchExpenses() {
         });
 }
 
-document.getElementById('nav-expenses').addEventListener('click', function() {
-    // Show the expenses section and hide others
-    document.getElementById('expenses-section').style.display = 'block';
+function showSection(sectionId) {
+    document.getElementById('expenses-section').style.display = 'none';
     document.getElementById('budget-section').style.display = 'none';
     document.getElementById('categories-section').style.display = 'none';
-    // Fetch expenses every time you show the section
+    document.getElementById(sectionId).style.display = 'block';
+}
+
+// Navigation event listeners
+document.getElementById('nav-expenses').addEventListener('click', function(e) {
+    e.preventDefault();
+    showSection('expenses-section');
     fetchExpenses();
 });
+document.getElementById('nav-budget').addEventListener('click', function(e) {
+    e.preventDefault();
+    showSection('budget-section');
+    // fetchBudget(); // if you have a function for budget
+});
+document.getElementById('nav-categories').addEventListener('click', function(e) {
+    e.preventDefault();
+    showSection('categories-section');
+    // fetchCategories(); // if you have a function for categories
+});
+
+// Show expenses section by default on page load
+showSection('expenses-section');
+fetchExpenses();
+
+document.addEventListener('DOMContentLoaded', function() {
+    fetchExpenses();
+});
+
+function deleteExpense(id) {
+    if (!confirm("Are you sure you want to delete this expense?")) return;
+
+    fetch(`http://localhost:5000/api/expenses/${id}`, {
+        method: 'DELETE'
+    })
+    .then(res => res.json())
+    .then(result => {
+        if (result.message === 'Expense deleted') {
+            fetchExpenses(); // Refresh table
+        } else {
+            alert('Failed to delete expense: ' + (result.error || 'Unknown error'));
+        }
+    })
+    .catch(err => {
+        console.error('Delete failed:', err);
+        alert('An error occurred while deleting the expense.');
+    });
+}
