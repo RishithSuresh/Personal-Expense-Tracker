@@ -12,11 +12,18 @@ export const getBudgets = async (req, res) => {
 
 export const addBudget = async (req, res) => {
     const { category_id, limit_amount, spent_amount, user_id } = req.body;
-    await db.query(
-        'INSERT INTO budgets (category_id, limit_amount, spent_amount, user_id) VALUES (?, ?, ?, ?)',
-        [category_id, limit_amount, spent_amount || 0, user_id]
-    );
-    res.json({ message: 'Budget added' });
+    if (!category_id || !limit_amount || !user_id) {
+        return res.status(400).json({ error: 'Missing required fields' });
+    }
+    try {
+        await db.query(
+            'INSERT INTO budgets (category_id, limit_amount, spent_amount, user_id) VALUES (?, ?, ?, ?)',
+            [category_id, limit_amount, spent_amount || 0, user_id]
+        );
+        res.json({ message: 'Budget added' });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 };
 
 export const updateBudget = async (req, res) => {

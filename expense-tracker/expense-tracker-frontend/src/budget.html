@@ -13,6 +13,7 @@
             <ul>
                 <li><a href="index.html">Home</a></li>
                 <li><a href="expenses.html">Expenses</a></li>
+                <li><a href="income.html">Income</a></li>
                 <li><a href="budget.html">Budget</a></li>
                 <li><a href="category.html">Categories</a></li>
             </ul>
@@ -26,7 +27,9 @@
                 <form id="budget-form" style="display:none; margin-bottom:2rem;">
                     <div class="form-row">
                         <label for="budget-category">Category:</label>
-                        <input type="text" id="budget-category" required>
+                        <select id="budget-category" required>
+                            <option value="">Select a category</option>
+                        </select>
                     </div>
                     <div class="form-row">
                         <label for="budget-limit">Limit:</label>

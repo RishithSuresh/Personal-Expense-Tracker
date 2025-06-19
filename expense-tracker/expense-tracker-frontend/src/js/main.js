@@ -19,6 +19,7 @@ function loadExpenses() {
 function loadBudget() {
     // Placeholder for loading budget logic
     console.log("Loading budget...");
+    fetchBudgets();
 }
 
 // Function to load categories
@@ -239,6 +240,67 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+    // --- Income Section Logic ---
+
+    const showIncomeFormBtn = document.getElementById('show-income-form');
+    const incomeForm = document.getElementById('income-form');
+    if (showIncomeFormBtn && incomeForm) {
+        showIncomeFormBtn.addEventListener('click', () => {
+            incomeForm.style.display = 'block';
+        });
+    }
+
+    if (incomeForm) {
+        incomeForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const date = document.getElementById('income-date').value;
+            const amount = document.getElementById('income-amount').value;
+            const source = document.getElementById('income-source').value;
+            const description = document.getElementById('income-description').value;
+
+            await fetch('http://localhost:5000/api/incomes', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ date, amount, source, description })
+            });
+            this.reset();
+            incomeForm.style.display = 'none';
+            loadIncomes();
+        });
+    }
+
+    async function loadIncomes() {
+        const incomeBody = document.getElementById('income-body');
+        if (!incomeBody) return;
+        const res = await fetch('http://localhost:5000/api/incomes');
+        const incomes = await res.json();
+        incomeBody.innerHTML = '';
+        incomes.forEach(income => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${income.date}</td>
+                <td>${income.description || ''}</td>
+                <td>${income.amount}</td>
+                <td>${income.source || ''}</td>
+                <td>
+                    <button onclick="deleteIncome(${income.id})" class="delete-btn">Delete</button>
+                </td>
+            `;
+            incomeBody.appendChild(tr);
+        });
+    }
+
+    window.deleteIncome = async function(id) {
+        await fetch(`http://localhost:5000/api/incomes/${id}`, { method: 'DELETE' });
+        loadIncomes();
+    };
+
+    window.addEventListener('DOMContentLoaded', () => {
+        if (document.getElementById('income-section')) {
+            loadIncomes();
+        }
+    });
 });
 
 const API_URL = 'http://localhost:5000/api/categories';
@@ -352,4 +414,108 @@ function deleteExpense(id) {
         console.error('Delete failed:', err);
         alert('An error occurred while deleting the expense.');
     });
+}
+
+// --- Budget Section Logic ---
+
+// Fetch categories for the budget form dropdown
+async function populateBudgetCategories() {
+    const select = document.getElementById('budget-category');
+    if (!select) return;
+    select.innerHTML = '<option value="">Select a category</option>';
+    try {
+        const res = await fetch('http://localhost:5000/api/categories');
+        const categories = await res.json();
+        categories.forEach(cat => {
+            const option = document.createElement('option');
+            option.value = cat.id;
+            option.textContent = cat.name;
+            select.appendChild(option);
+        });
+    } catch (err) {
+        select.innerHTML = '<option value="">No categories found</option>';
+    }
+}
+
+// Fetch and display budgets
+async function fetchBudgets() {
+    const userId = 1; // Replace with actual user ID if you have authentication
+    const res = await fetch(`http://localhost:5000/api/budgets/${userId}`);
+    const budgets = await res.json();
+    const budgetsRow = document.getElementById('budgets-row');
+    if (budgetsRow) {
+        budgetsRow.innerHTML = '';
+        budgets.forEach(budget => {
+            const card = document.createElement('div');
+            card.className = 'budget-card';
+            card.innerHTML = `
+                <strong>${budget.category_name}</strong>
+                <table class="budget-table">
+                    <tr>
+                        <td>Limit:</td>
+                        <td class="budget-limit">₱${Number(budget.limit_amount).toLocaleString()}</td>
+                    </tr>
+                    <tr>
+                        <td>Spent:</td>
+                        <td class="budget-spent">₱${Number(budget.spent_amount).toLocaleString()}</td>
+                    </tr>
+                </table>
+                <button class="delete-budget-btn" data-id="${budget.id}">Delete</button>
+            `;
+            budgetsRow.appendChild(card);
+        });
+    }
+}
+
+// Handle budget form submission
+const formBudget = document.getElementById('budget-form');
+if (formBudget) {
+    formBudget.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const category_id = document.getElementById('budget-category').value;
+        const limit_amount = document.getElementById('budget-limit').value;
+        const spent_amount = document.getElementById('budget-spent').value || 0;
+        const user_id = 1; // Replace with actual user ID if you have authentication
+
+        await fetch('http://localhost:5000/api/budgets', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ category_id, limit_amount, spent_amount, user_id })
+        });
+
+        const result = await response.json();
+        if (result.message === 'Budget added') {
+            this.reset();
+            formBudget.style.display = 'none';
+            fetchBudgets();
+        } else {
+            alert('Failed to add budget: ' + (result.error || 'Unknown error'));
+        }
+    });
+}
+
+// Show/hide budget form
+const showBtnBudget = document.getElementById('show-budget-form');
+if (showBtnBudget && formBudget) {
+    showBtnBudget.addEventListener('click', () => {
+        formBudget.style.display = formBudget.style.display === 'none' ? 'block' : 'none';
+        populateBudgetCategories();
+    });
+}
+
+// Delete budget
+document.addEventListener('click', async function(e) {
+    if (e.target.classList.contains('delete-budget-btn')) {
+        const id = e.target.getAttribute('data-id');
+        if (confirm('Are you sure you want to delete this budget?')) {
+            await fetch(`http://localhost:5000/api/budgets/${id}`, { method: 'DELETE' });
+            fetchBudgets();
+        }
+    }
+});
+
+// On budget page load, fetch budgets and categories
+if (document.getElementById('budgets-row')) {
+    fetchBudgets();
+    populateBudgetCategories();
 }
